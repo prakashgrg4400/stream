@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
-        return next();
+        return next(); // this will handle the control to the next middleware , and stop the execution of the code in the current middleware. Meaning code below this line will not be executed .
     }
 
     try {
@@ -66,5 +66,11 @@ userSchema.pre("save", async function (next) {
         console.log("Error from pre save 'password' .");
     }
 });
+
+// this methods will be directly accessed by each doccuments which is fetched from the database.
+userSchema.methods.matchPassword = async function (userPassword, hashPassword) {
+    const isPasswordSame = await bcrypt.compare(userPassword, hashPassword);
+    return isPasswordSame;
+};
 
 export const User = mongoose.model("User", userSchema);
